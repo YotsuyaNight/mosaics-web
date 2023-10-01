@@ -1,21 +1,25 @@
 package main
 
 import (
-	"os"
-	"strings"
+	"net/http"
+
+	"mosaics-web/cable"
 
 	"github.com/gin-gonic/gin"
 )
 
+func AddUserId(c *gin.Context) {
+	userId := c.GetHeader("X-User-Id")
+	if userId == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
+	}
+	c.Set("UserId", userId)
+}
+
 func main() {
 	r := gin.Default()
-	r.GET("/", func(c *gin.Context) {
-		envs := make(map[string]string)
-		for _, env := range os.Environ() {
-			keyval := strings.SplitN(env, "=", 2)
-			envs[keyval[0]] = keyval[1]
-		}
-		c.JSON(200, envs)
-	})
-	r.Run() // listen and serve on 0.0.0.0:8080
+	r.Use(cable.AddWsConnectionMap)
+	r.Use(AddUserId)
+	InitRouter(r)
+	r.Run()
 }
