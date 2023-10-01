@@ -36,6 +36,10 @@ func FetchWsConnectionMap(c *gin.Context) *WsConnectionMap {
 	return result.(*WsConnectionMap)
 }
 
+func WriteToConnection(c *gin.Context, userId string, message string) {
+	FetchWsConnectionMap(c).conns[userId].Write(c, websocket.MessageText, []byte(message))
+}
+
 func AddWsConnectionMap(c *gin.Context) {
 	c.Set(
 		wsConnMap,

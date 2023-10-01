@@ -3,7 +3,6 @@ package cable
 import (
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"nhooyr.io/websocket"
@@ -20,12 +19,19 @@ func HandleWebsocket(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	}
 
-	defer wsConnMap.Delete(userId)
-	defer ws.Close(websocket.StatusNormalClosure, "Finished work")
 	wsConnMap.Add(userId, ws)
 
-	for i := 0; i < 100; i++ {
-		ws.Write(c, websocket.MessageText, []byte(userId))
-		time.Sleep(1 * time.Second)
-	}
+	go func() {
+		defer wsConnMap.Delete(userId)
+		defer ws.Close(websocket.StatusNormalClosure, "Finished work")
+
+		for {
+			_, msg, err := ws.Read(c)
+			if err != nil {
+				log.Printf("[WS=%s] Client disconnected: %s", userId, err)
+				break
+			}
+			log.Printf("[WS=%s] Received message: %s", userId, msg)
+		}
+	}()
 }

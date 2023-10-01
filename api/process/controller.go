@@ -7,6 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"gomosaics"
+
+	"mosaics-web/cable"
 )
 
 func ProcessUpload(c *gin.Context) {
@@ -21,6 +24,15 @@ func ProcessUpload(c *gin.Context) {
 	if err != nil {
 		c.AbortWithError(http.StatusUnprocessableEntity, err)
 	}
+	cable.WriteToConnection(c, c.GetString("UserId"), "upload_finished")
+
+	outputPath := fmt.Sprintf("uploads/%s-mosaic%s", newFilename, path.Ext(file.Filename))
+	go runMosaicate(c, savePath, outputPath)
 
 	c.JSON(200, map[string]string{"uploaded": "true"})
+}
+
+func runMosaicate(c *gin.Context, input string, output string) {
+	gomosaics.Mosaicate(input, "icons", output, 16, 16)
+	cable.WriteToConnection(c, c.GetString("UserId"), "processing_finished")
 }
