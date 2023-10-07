@@ -4,12 +4,12 @@ go 1.21.0
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	gomosaics v0.0.0
 	github.com/google/uuid v1.3.1
+	gomosaics v0.0.0
 	nhooyr.io/websocket v1.8.7
 )
 
-replace gomosaics => ../go-mosaics/gomosaics
+replace gomosaics => ./go-mosaics/gomosaics
 
 require (
 	github.com/bytedance/sonic v1.10.1 // indirect
