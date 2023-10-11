@@ -5,13 +5,10 @@ go 1.21.0
 require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.3.1
-	gomosaics v0.0.0
 	google.golang.org/grpc v1.58.2
 	google.golang.org/protobuf v1.31.0
 	nhooyr.io/websocket v1.8.7
 )
-
-replace gomosaics => ./go-mosaics/gomosaics
 
 require (
 	github.com/bytedance/sonic v1.10.1 // indirect

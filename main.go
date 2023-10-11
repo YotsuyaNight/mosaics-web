@@ -3,9 +3,10 @@ package main
 import (
 	"net/http"
 
-	"mosaics-web/cable"
-
 	"github.com/gin-gonic/gin"
+
+	"mosaics-web/cable"
+	"mosaics-web/proto"
 )
 
 func AddUserId(c *gin.Context) {
@@ -17,8 +18,11 @@ func AddUserId(c *gin.Context) {
 }
 
 func main() {
+	proto.InitGrpcClient()
+
 	r := gin.Default()
 	r.Use(cable.AddWsConnectionMap)
+	r.Use(proto.AddGrpcClient)
 	r.Use(AddUserId)
 	InitRouter(r)
 	r.Run()

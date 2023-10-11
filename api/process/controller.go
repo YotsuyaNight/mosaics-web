@@ -7,9 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"gomosaics"
 
 	"mosaics-web/cable"
+	"mosaics-web/proto"
 )
 
 func ProcessUpload(c *gin.Context) {
@@ -33,6 +33,11 @@ func ProcessUpload(c *gin.Context) {
 }
 
 func runMosaicate(c *gin.Context, input string, output string) {
-	gomosaics.Mosaicate(input, "icons", output, 16, 16)
-	cable.WriteToConnection(c, c.GetString("UserId"), "processing_finished")
+	// proto.GrpcRunFileProcess(c, input, "icons", output, 16, 16)
+	output, err := proto.GrpcRunFileProcess(c, input)
+	if err != nil {
+		cable.WriteToConnection(c, c.GetString("UserId"), fmt.Sprintf("processing_error %s", err))
+	} else {
+		cable.WriteToConnection(c, c.GetString("UserId"), "processing_finished: "+output)
+	}
 }
