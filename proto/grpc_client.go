@@ -26,7 +26,7 @@ func InitGrpcClient() {
 	}
 	grpcPort := os.Getenv("MOSAICS_SERVICE_SERVICE_PORT")
 	if grpcPort == "" {
-		grpcPort = "8080"
+		grpcPort = "8081"
 	}
 
 	tlsOption := grpc.WithTransportCredentials(insecure.NewCredentials())

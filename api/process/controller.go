@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	"mosaics-web/cable"
+	"mosaics-web/env"
 	"mosaics-web/proto"
 )
 
@@ -18,21 +19,21 @@ func ProcessUpload(c *gin.Context) {
 		c.AbortWithError(http.StatusUnprocessableEntity, err)
 	}
 
-	newFilename, _ := uuid.NewRandom()
-	savePath := fmt.Sprintf("uploads/%s%s", newFilename, path.Ext(file.Filename))
+	newFilename := uuid.NewString() + path.Ext(file.Filename)
+	saveRelPath := path.Join(env.GetUploadsDir(), newFilename)
+	savePath := path.Join(env.GetBaseDir(), saveRelPath)
 	err = c.SaveUploadedFile(file, savePath)
 	if err != nil {
 		c.AbortWithError(http.StatusUnprocessableEntity, err)
 	}
 	cable.WriteToConnection(c, c.GetString("UserId"), "upload_finished")
 
-	outputPath := fmt.Sprintf("uploads/%s-mosaic%s", newFilename, path.Ext(file.Filename))
-	go runMosaicate(c, savePath, outputPath)
+	go runMosaicate(c, saveRelPath)
 
 	c.JSON(200, map[string]string{"uploaded": "true"})
 }
 
-func runMosaicate(c *gin.Context, input string, output string) {
+func runMosaicate(c *gin.Context, input string) {
 	// proto.GrpcRunFileProcess(c, input, "icons", output, 16, 16)
 	output, err := proto.GrpcRunFileProcess(c, input)
 	if err != nil {

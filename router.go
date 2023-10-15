@@ -1,10 +1,11 @@
 package main
 
 import (
-	"mosaics-web/api/env"
-	"mosaics-web/api/helloworld"
+	"path"
+
 	"mosaics-web/api/process"
 	"mosaics-web/cable"
+	"mosaics-web/env"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,18 +28,6 @@ type RouteConfig struct {
 
 var routesConfig = []RouteConfig{
 	{
-		"HelloWorldEndpoints",
-		[]EndpointConfig{
-			{Path: "/helloworld", Method: GET, Resolver: helloworld.ShowHelloWorld},
-		},
-	},
-	{
-		"EnvInfoEndpoints",
-		[]EndpointConfig{
-			{Path: "/envs", Method: GET, Resolver: env.ShowAllEnvs},
-		},
-	},
-	{
 		"ImageProcessorEndpoints",
 		[]EndpointConfig{
 			{Path: "/process", Method: POST, Resolver: process.ProcessUpload},
@@ -58,4 +47,5 @@ func InitRouter(r *gin.Engine) {
 			r.Handle(endpoint.Method, endpoint.Path, endpoint.Resolver)
 		}
 	}
+	r.Static("/img", path.Join(env.GetBaseDir(), env.GetResultDir()))
 }
