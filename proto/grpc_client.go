@@ -2,7 +2,9 @@ package proto
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -18,11 +20,21 @@ var (
 )
 
 func InitGrpcClient() {
+	grpcHost := os.Getenv("MOSAICS_SERVICE_SERVICE_HOST")
+	if grpcHost == "" {
+		grpcHost = "localhost"
+	}
+	grpcPort := os.Getenv("MOSAICS_SERVICE_SERVICE_PORT")
+	if grpcPort == "" {
+		grpcPort = "8080"
+	}
+
 	tlsOption := grpc.WithTransportCredentials(insecure.NewCredentials())
-	conn, err := grpc.Dial("localhost:8081", tlsOption)
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", grpcHost, grpcPort), tlsOption)
 	if err != nil {
 		log.Fatal("Could not establish connection to gRPC server: ", err)
 	}
+
 	globalConn = conn
 	client := NewFileProcessingClient(globalConn)
 	globalClient = &client
