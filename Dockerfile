@@ -1,6 +1,6 @@
 FROM golang:1.21.1
 WORKDIR /app
 COPY . .
-RUN ["go", "build"]
+RUN ["go", "build", "-o", "app"]
 EXPOSE 8080
-CMD ["./mosaics-web"]
+CMD ["./app"]
